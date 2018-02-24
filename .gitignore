@@ -1,0 +1,7 @@
+ignore/
+*.pyc
+*.npy
+.ipynb_checkpoints/
+*.ipynb
+*.csv
+*.png
