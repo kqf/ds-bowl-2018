@@ -3,10 +3,25 @@ import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
 from glob import glob
 import os
 from skimage.io import imread
+from skimage.transform import resize
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.base import BaseEstimator, TransformerMixin
 
 
+class ImageResizer(BaseEstimator, TransformerMixin):
+    def __init__(self, height=256, width=256):
+        super(ImageResizer, self).__init__()
+        self.height =height 
+        self.width = width
+
+    def transform(self, X):
+        updated = np.array(
+            list(map(lambda x: resize(x, (self.height, self.width, 3), mode='constant', preserve_range=True), X))
+        )
+        print(updated)
+        return updated
+        
 
 class DataManager(object):
     def __init__(self, datapath="input", stage="stage1"):
