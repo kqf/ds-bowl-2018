@@ -10,7 +10,11 @@ def main():
     train_imges_, train_masks_ = data.images(), data.masks()
 
     train_imges = ImageResizer().transform(train_imges_)
-    train_masks = ImageResizer().transform(train_masks_)
+    train_masks = ImageResizer(channels=3).transform(train_masks_)
+
+    print(train_imges.shape)
+    print(train_masks.shape)
+
 
 
 

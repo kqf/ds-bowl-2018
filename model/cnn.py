@@ -26,7 +26,7 @@ class CnnClassifier():
     def _build_network(self, X):
         base_cnn = Sequential()
         base_cnn.add(BatchNormalization(
-            input_shape = (None, None, self.channels), 
+            input_shape = (256, 256, self.channels), 
             name = 'NormalizeInput')
         )
 
@@ -39,7 +39,7 @@ class CnnClassifier():
 
         # the final processing
         base_cnn.add(Conv2D(16, kernel_size=(1,1), padding='same'))
-        base_cnn.add(Conv2D(1, kernel_size=(1,1), padding='same', activation='sigmoid'))
+        base_cnn.add(Conv2D(3, kernel_size=(1,1), padding='same', activation='sigmoid'))
         base_cnn.summary()    
 
         def dice_coef(y_true, y_pred):

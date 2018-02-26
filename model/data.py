@@ -10,6 +10,20 @@ from sklearn.base import BaseEstimator, TransformerMixin
 
 
 class ImageResizer(BaseEstimator, TransformerMixin):
+    def __init__(self, height=256, width=256, channels=3):
+        super(ImageResizer, self).__init__()
+        self.height =height 
+        self.width = width
+        self.channels = channels
+
+    def transform(self, X):
+        updated = np.array(
+            list(map(lambda x: resize(x, (self.height, self.width, self.channels), mode='constant', preserve_range=True), X))
+        )
+        print(updated)
+        return updated
+
+class MaskResizer(BaseEstimator, TransformerMixin):
     def __init__(self, height=256, width=256):
         super(ImageResizer, self).__init__()
         self.height =height 
@@ -19,9 +33,8 @@ class ImageResizer(BaseEstimator, TransformerMixin):
         updated = np.array(
             list(map(lambda x: resize(x, (self.height, self.width, 3), mode='constant', preserve_range=True), X))
         )
-        print(updated)
         return updated
-        
+
 
 class DataManager(object):
     def __init__(self, datapath="input", stage="stage1"):
