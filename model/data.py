@@ -111,3 +111,34 @@ class DataManager(object):
             masklist = self.imagelist.masks.values
         # np.save(ofilename, masklist)
         return masklist 
+
+from skimage.morphology import label
+
+# Run-length encoding taken from https://www.kaggle.com/rakhlin/fast-run-length-encoding-python
+class RleEncoder(BaseEstimator, TransformerMixin):
+
+    def _rle_encoding(self, x):
+        dots = np.where(x.T.flatten() == 1)[0]
+        run_lengths = []
+        prev = -2
+        for b in dots:
+            if (b > prev + 1): 
+                run_lengths.extend((b + 1, 0))
+            run_lengths[-1] += 1
+            prev = b
+        return run_lengths
+
+    def _prob_to_rles(self, X, cutoff=0.5):
+        lab_img = label(X > cutoff)
+        for i in range(1, lab_img.max() + 1):
+            yield self._rle_encoding(lab_img == i)
+
+    def transform(self, X):
+        test_ids, data = X["ImageId"].values, X["predicted"].values
+        new_test_ids, rles = [], []
+        for n, id_ in enumerate(test_ids):
+            rle = list(self._prob_to_rles(data[n]))
+            rles.extend(rle)
+            new_test_ids.extend([id_] * len(rle))
+        return new_test_ids, rles
+

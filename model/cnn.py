@@ -4,7 +4,7 @@ from keras import backend as K
 
 class CnnClassifier():
 
-    def __init__(self, batch_size=1000, epochs=1, smooth=1., channels=3):
+    def __init__(self, batch_size=1, epochs=1, smooth=1., channels=3):
         self.batch_size = batch_size
         self.epochs = epochs
         self.smooth = smooth
@@ -16,7 +16,7 @@ class CnnClassifier():
 
         self._graph.fit(X, y,
             steps_per_epoch=self.batch_size,
-            epochs=3
+            epochs=self.epochs
         )
         return self
 

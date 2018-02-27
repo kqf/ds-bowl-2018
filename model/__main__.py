@@ -1,4 +1,4 @@
-from model.data import DataManager, ImageResizer
+from model.data import DataManager, ImageResizer, RleEncoder
 from model.cnn import CnnClassifier
 
 
@@ -25,6 +25,14 @@ def main():
     print(train_imges.shape)
     print(train_masks.shape)
     classifier.fit(train_imges, train_masks)
+
+
+    output = data.imagelist[["ImageId"]]
+    output['predicted'] = classifier.predict(output)
+    output['encoded'] = RleEncoder().transform(
+        output
+    )
+
 
 if __name__ == '__main__':
     main()
