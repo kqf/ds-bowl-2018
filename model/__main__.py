@@ -1,11 +1,10 @@
-from model.data import DataManager, ImageResizer, RleEncoder
+from model.data import DataManager, ImageResizer, RleEncoder, ResultSaver
 from model.cnn import CnnClassifier
 
 
 from sklearn.pipeline import make_pipeline
 
 def main():
-    # get train_data
     data = DataManager()
     train_imges_, train_masks_ = data.images(), data.masks()
 
@@ -15,23 +14,27 @@ def main():
     print(train_imges.shape)
     print(train_masks.shape)
 
-
-
-
-    # get u_net model
     classifier = CnnClassifier()
-
     print("\nTraining...")
     print(train_imges.shape)
     print(train_masks.shape)
     classifier.fit(train_imges, train_masks)
 
 
-    output = data.imagelist[["ImageId"]]
-    output['predicted'] = classifier.predict(output)
-    output['encoded'] = RleEncoder().transform(
-        output
-    )
+    predictions = data.imagelist[["ImageId"]]
+    predicted = classifier.predict(train_imges)
+    print(predicted.shape)
+
+    predictions['predicted'] = list(predicted)
+
+    output = RleEncoder().transform(predictions)
+    print(output)
+
+    ResultSaver().transform(output)
+
+    # Fixes the issue described here
+    # https://github.com/tensorflow/tensorflow/issues/8652
+    del classifier
 
 
 if __name__ == '__main__':

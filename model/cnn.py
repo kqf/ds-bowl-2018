@@ -21,7 +21,7 @@ class CnnClassifier():
         return self
 
     def predict(self, X):
-        pass
+        return self._graph.predict(X, verbose=1)
 
     def _build_network(self, X):
         base_cnn = Sequential()

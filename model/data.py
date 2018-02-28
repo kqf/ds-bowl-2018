@@ -114,8 +114,13 @@ class DataManager(object):
 
 from skimage.morphology import label
 
-# Run-length encoding taken from https://www.kaggle.com/rakhlin/fast-run-length-encoding-python
 class RleEncoder(BaseEstimator, TransformerMixin):
+
+
+    def __init__(self, id_col="ImageId", encoded_col="EncodedPixels"):
+        super(RleEncoder, self).__init__()
+        self.id_col = id_col
+        self.encoded_col = encoded_col
 
     def _rle_encoding(self, x):
         dots = np.where(x.T.flatten() == 1)[0]
@@ -136,9 +141,36 @@ class RleEncoder(BaseEstimator, TransformerMixin):
     def transform(self, X):
         test_ids, data = X["ImageId"].values, X["predicted"].values
         new_test_ids, rles = [], []
-        for n, id_ in enumerate(test_ids):
-            rle = list(self._prob_to_rles(data[n]))
-            rles.extend(rle)
-            new_test_ids.extend([id_] * len(rle))
-        return new_test_ids, rles
 
+        for n, id_ in enumerate(test_ids):
+            print(n, id_, n)
+            rle = list(self._prob_to_rles(data[n]))
+            new_test_ids.extend([id_] * len(rle))
+            rles.extend(rle)
+
+        print(len(new_test_ids), len(rles))
+
+        output = pd.DataFrame({
+            self.id_col: new_test_ids,
+            self.encoded_col: rles
+
+        })
+        return output
+
+
+class ResultSaver(BaseEstimator, TransformerMixin):
+
+    def __init__(self, out_columns=["ImageId", "EncodedPixels"], ofile="output.csv"):
+        super(ResultSaver, self).__init__()
+        self.out_columns = out_columns 
+        self.ofile = ofile
+
+    def transform(self, X):
+        output = X[self.out_columns]
+        output[self.out_columns[-1]] = output[self.out_columns[-1]].apply(lambda x: ' '.join(map(str, x)))
+        output.to_csv(self.ofile, index=False)
+        return output
+
+
+
+        
