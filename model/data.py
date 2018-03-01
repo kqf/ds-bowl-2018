@@ -21,7 +21,6 @@ class ImageResizer(BaseEstimator, TransformerMixin):
         updated = np.array(
             list(map(lambda x: resize(x, (self.height, self.width, self.channels), mode='constant', preserve_range=True), X))
         )
-        print(updated)
         return updated
 
 class MaskResizer(BaseEstimator, TransformerMixin):
@@ -86,7 +85,6 @@ class DataManager(object):
                 on="ImageId"
         )
 
-        print('here')
         output = output.sample(10)
         def read_and_stack(images):
             return np.sum(np.stack([imread(c_img) for c_img in images], 0), 0) / 255.0
@@ -143,13 +141,10 @@ class RleEncoder(BaseEstimator, TransformerMixin):
         new_test_ids, rles = [], []
 
         for n, id_ in enumerate(test_ids):
-            print(n, id_, n)
             rle = list(self._prob_to_rles(data[n]))
             new_test_ids.extend([id_] * len(rle))
             rles.extend(rle)
-
-        print(len(new_test_ids), len(rles))
-
+            
         output = pd.DataFrame({
             self.id_col: new_test_ids,
             self.encoded_col: rles
