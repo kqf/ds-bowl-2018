@@ -7,6 +7,7 @@ from skimage.transform import resize
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.base import BaseEstimator, TransformerMixin
+from skimage.morphology import label
 
 
 class ImageResizer(BaseEstimator, TransformerMixin):
@@ -112,7 +113,6 @@ class DataManager(object):
         # np.save(ofilename, masklist)
         return masklist 
 
-from skimage.morphology import label
 
 class RleEncoder(BaseEstimator, TransformerMixin):
 
@@ -171,6 +171,14 @@ class ResultSaver(BaseEstimator, TransformerMixin):
         output.to_csv(self.ofile, index=False)
         return output
 
+class ShaperReporter(BaseEstimator, TransformerMixin):
 
+    def fit(self, X, y=None):
+        print("X shape: ", X.shape)
+        print("y shape: ", y.shape)
+        return self
+
+    def transform(self, X, y=None):
+        return X
 
         

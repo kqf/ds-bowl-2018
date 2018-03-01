@@ -1,30 +1,36 @@
-from model.data import DataManager, ImageResizer, RleEncoder, ResultSaver
+from sklearn.pipeline import make_pipeline
+from model.data import DataManager, ImageResizer, RleEncoder, ResultSaver, ShaperReporter
 from model.cnn import CnnClassifier
 
 
 from sklearn.pipeline import make_pipeline
+
+def build_model():
+    classifier = make_pipeline(
+        ShaperReporter(),
+        CnnClassifier()
+    )
+    return classifier
+
 
 def main():
     data = DataManager()
     train_imges_, train_masks_ = data.images(), data.masks()
 
     train_imges = ImageResizer().transform(train_imges_)
-    train_masks = ImageResizer(channels=3).transform(train_masks_)
+    train_masks = ImageResizer().transform(train_masks_)
 
-    print(train_imges.shape)
-    print(train_masks.shape)
+    classifier = build_model()
 
-    classifier = CnnClassifier()
     print("\nTraining...")
-    print(train_imges.shape)
-    print(train_masks.shape)
     classifier.fit(train_imges, train_masks)
 
 
-    predictions = data.imagelist[["ImageId"]]
+    print("\nPredicting...")
     predicted = classifier.predict(train_imges)
     print(predicted.shape)
 
+    predictions = data.imagelist[["ImageId"]]
     predictions['predicted'] = list(predicted)
 
     output = RleEncoder().transform(predictions)
