@@ -27,13 +27,17 @@ def main():
         classifier.fit(train_imges, train_masks)
 
 
+    with Timer("Reading test set"):
+        test_images_ = data.test()
+        test_images = ImageResizer().transform(test_images_)
+
     with Timer('Predicting the values'):
-        predicted = classifier.predict(train_imges)
+        predicted = classifier.predict(test_images)
         print(predicted.shape)
 
 
     with Timer('Save the results'):
-        predictions = data.imagelist[['ImageId']]
+        predictions = test_images_.imagelist[['ImageId']]
         predictions['predicted'] = list(predicted)
 
         output = RleEncoder().transform(predictions)

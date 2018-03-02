@@ -23,25 +23,20 @@ class ImageResizer(BaseEstimator, TransformerMixin):
         )
         return updated
 
-class MaskResizer(BaseEstimator, TransformerMixin):
-    def __init__(self, height=256, width=256):
-        super(ImageResizer, self).__init__()
-        self.height =height 
-        self.width = width
-
-    def transform(self, X):
-        updated = np.array(
-            list(map(lambda x: resize(x, (self.height, self.width, 3), mode='constant', preserve_range=True), X))
-        )
-        return updated
-
-
 class DataManager(object):
     def __init__(self, datapath="input", stage="stage1"):
         super(DataManager, self).__init__()
         self.datapath = datapath
         self.stage = stage
         self._imagelist = None
+        self._all_images = None
+
+    @property
+    def all_images(self):
+        if self._all_images is not None:
+            return self._all_images
+        self._all_images = self.read_all_images()
+        return self._all_images
 
     @property
     def imagelist(self):
@@ -50,7 +45,7 @@ class DataManager(object):
         self._imagelist = self.load_images()
         return self._imagelist
 
-    def list_of_images(self):
+    def read_all_images(self):
         all_images = glob(os.path.join(self.datapath, '{0}_*'.format(self.stage), '*', '*', '*'))
         imlist = pd.DataFrame({'path': all_images})
         img_id = lambda in_path: in_path.split('/')[-3]
@@ -61,6 +56,7 @@ class DataManager(object):
         imlist['ImageType'] = imlist['path'].map(img_type)
         imlist['TrainingSplit'] = imlist['path'].map(img_group)
         imlist['Stage'] = imlist['path'].map(img_stage)
+        print(imlist.groupby('TrainingSplit').count())
         return imlist 
 
 
@@ -74,23 +70,21 @@ class DataManager(object):
         )
         return train_labels
 
+    def read_and_stack(self, images):
+        return np.sum(np.stack([imread(c_img) for c_img in images], 0), 0) / 255.0
 
     def load_images(self):
-        imlist = self.list_of_images()
         output = pd.merge(
-            imlist[imlist.ImageType == "images"].rename(index=str, columns={"path": "image"}),
+            self.all_images[self.all_images.ImageType == "images"].rename(index=str, columns={"path": "image"}),
             pd.DataFrame(
-                    imlist[imlist.ImageType == "masks"].groupby("ImageId")["path"].apply(list)
+                    self.all_images[self.all_images.ImageType == "masks"].groupby("ImageId")["path"].apply(list)
                 ).reset_index().rename(index=str, columns={"path":"masks"}),
                 on="ImageId"
         )
 
         output = output.sample(10)
-        def read_and_stack(images):
-            return np.sum(np.stack([imread(c_img) for c_img in images], 0), 0) / 255.0
-
-        output.image = output.image.apply(lambda x: read_and_stack([x]))
-        output.masks = output.masks.apply(read_and_stack) 
+        output.image = output.image.apply(lambda x: self.read_and_stack([x]))
+        output.masks = output.masks.apply(self.read_and_stack) 
         return output
 
     def images(self):
@@ -110,6 +104,12 @@ class DataManager(object):
             masklist = self.imagelist.masks.values
         # np.save(ofilename, masklist)
         return masklist 
+
+    def test(self):
+        output = self.all_images[self.all_images.TrainingSplit == "test"]
+        output = output.rename(index=str, columns={"path": "image"})
+        output.image = output.image.apply(lambda x: self.read_and_stack([x]))
+        return output[["ImageId", "image"]]
 
 
 class RleEncoder(BaseEstimator, TransformerMixin):
