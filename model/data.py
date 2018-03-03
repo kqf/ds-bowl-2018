@@ -8,14 +8,18 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.base import BaseEstimator, TransformerMixin
 from skimage.morphology import label
+from sklearn.pipeline import make_pipeline
 
 
 class ImageResizer(BaseEstimator, TransformerMixin):
     def __init__(self, height=256, width=256, channels=3):
         super(ImageResizer, self).__init__()
-        self.height =height 
+        self.height = height 
         self.width = width
         self.channels = channels
+
+    def fit(self, X, y=None):
+        return self
 
     def transform(self, X):
         updated = np.array(
@@ -23,29 +27,14 @@ class ImageResizer(BaseEstimator, TransformerMixin):
         )
         return updated
 
-class DataManager(object):
+class DataReader(object):
+
     def __init__(self, datapath="input", stage="stage1"):
-        super(DataManager, self).__init__()
+        super(DataReader, self).__init__()
         self.datapath = datapath
         self.stage = stage
-        self._imagelist = None
-        self._all_images = None
 
-    @property
-    def all_images(self):
-        if self._all_images is not None:
-            return self._all_images
-        self._all_images = self.read_all_images()
-        return self._all_images
-
-    @property
-    def imagelist(self):
-        if self._imagelist is not None:
-            return self._imagelist
-        self._imagelist = self.load_images()
-        return self._imagelist
-
-    def read_all_images(self):
+    def _dataset(self):
         all_images = glob(os.path.join(self.datapath, '{0}_*'.format(self.stage), '*', '*', '*'))
         imlist = pd.DataFrame({'path': all_images})
         img_id = lambda in_path: in_path.split('/')[-3]
@@ -56,65 +45,46 @@ class DataManager(object):
         imlist['ImageType'] = imlist['path'].map(img_type)
         imlist['TrainingSplit'] = imlist['path'].map(img_group)
         imlist['Stage'] = imlist['path'].map(img_stage)
-        print(imlist.groupby('TrainingSplit').count())
         return imlist 
-
-
-    def labels(datapath="input", stage="stage1"):
-        train_labels = pd.read_csv(
-            os.path.join(self.datapath,'{}_train_labels.csv'.format(self.stage))
-        )
-
-        train_labels['EncodedPixels'] = train_labels['EncodedPixels'].map(
-            lambda ep: [int(x) for x in ep.split(' ')]
-        )
-        return train_labels
 
     def read_and_stack(self, images):
         return np.sum(np.stack([imread(c_img) for c_img in images], 0), 0) / 255.0
 
-    def load_images(self):
+    def _process_images(self, images):
+        pipeline = make_pipeline(
+            ImageResizer()
+        )
+        return pipeline.transform(images)
+
+    def read(self, column="test"):
+        dataset = self._dataset()
+        output = dataset[dataset.TrainingSplit == column]
+        output = output.sample(2)
+        output = output.rename(index=str, columns={"path": "images"})
+        output.images = output.images.apply(lambda x: self.read_and_stack([x]))
+        return output[["ImageId"]], self._process_images(output.images)
+
+
+class TrainDataReader(DataReader):
+
+    def read(self, column="train"):
+        dataset = self._dataset()
+        output = dataset[dataset.TrainingSplit == column]
         output = pd.merge(
-            self.all_images[self.all_images.ImageType == "images"].rename(index=str, columns={"path": "image"}),
+            output[output.ImageType == "images"].rename(index=str, columns={"path": "images"}),
             pd.DataFrame(
-                    self.all_images[self.all_images.ImageType == "masks"].groupby("ImageId")["path"].apply(list)
+                    output[output.ImageType == "masks"].groupby("ImageId")["path"].apply(list)
                 ).reset_index().rename(index=str, columns={"path":"masks"}),
                 on="ImageId"
         )
 
         output = output.sample(10)
-        output.image = output.image.apply(lambda x: self.read_and_stack([x]))
+        output.images = output.images.apply(lambda x: self.read_and_stack([x]))
         output.masks = output.masks.apply(self.read_and_stack) 
-        return output
-
-    def images(self):
-        ofilename = "{0}/{1}-images.npy".format(self.datapath, self.stage)
-        try: 
-            return np.load(ofilename)
-        except FileNotFoundError:
-            imlist = self.imagelist.image.values
-        # np.save(ofilename, imlist)
-        return imlist
-
-    def masks(self):
-        ofilename = "{0}/{1}-masks".format(self.datapath, self.stage)
-        try: 
-            return np.load(ofilename)
-        except FileNotFoundError:
-            masklist = self.imagelist.masks.values
-        # np.save(ofilename, masklist)
-        return masklist 
-
-    def test(self):
-        output = self.all_images[self.all_images.TrainingSplit == "test"]
-        output = output.rename(index=str, columns={"path": "image"})
-        output.image = output.image.apply(lambda x: self.read_and_stack([x]))
-        return output[["ImageId", "image"]]
+        return self._process_images(output.images), self._process_images(output.masks)
 
 
 class RleEncoder(BaseEstimator, TransformerMixin):
-
-
     def __init__(self, id_col="ImageId", encoded_col="EncodedPixels"):
         super(RleEncoder, self).__init__()
         self.id_col = id_col

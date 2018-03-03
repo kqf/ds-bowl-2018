@@ -1,4 +1,4 @@
-from model.data import DataManager, ImageResizer, RleEncoder, ResultSaver, ShaperReporter
+from model.data import TrainDataReader, ImageResizer, RleEncoder, ResultSaver, ShaperReporter, DataReader
 from model.cnn import CnnClassifier
 from model.timer import Timer
 
@@ -13,34 +13,23 @@ def build_model():
 
 def main():
     with Timer('Prepare data'):
-        data = DataManager()
-        train_imges_, train_masks_ = data.images(), data.masks()
-
-        train_imges = ImageResizer().transform(train_imges_)
-        train_masks = ImageResizer().transform(train_masks_)
+        train_imges, train_masks = TrainDataReader().read()
 
     with Timer('Prepare data'):
         classifier = build_model()
 
-
     with Timer('Training the model'):
         classifier.fit(train_imges, train_masks)
 
-
     with Timer("Reading test set"):
-        test_images_ = data.test()
-        test_images = ImageResizer().transform(test_images_)
+        test_ids, test_images = DataReader().read()
 
     with Timer('Predicting the values'):
         predicted = classifier.predict(test_images)
-        print(predicted.shape)
-
 
     with Timer('Save the results'):
-        predictions = test_images_.imagelist[['ImageId']]
-        predictions['predicted'] = list(predicted)
-
-        output = RleEncoder().transform(predictions)
+        test_ids['predicted'] = list(predicted)
+        output = RleEncoder().transform(test_ids)
         ResultSaver().transform(output)
 
     # Fixes the issue described here
