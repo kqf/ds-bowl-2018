@@ -1,4 +1,5 @@
 ignore/
+input/
 *.pyc
 *.npy
 .ipynb_checkpoints/

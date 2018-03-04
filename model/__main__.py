@@ -1,6 +1,6 @@
-from model.data import TrainDataReader, ImageResizer, RleEncoder, ResultSaver, ShaperReporter, DataReader
-from model.cnn import CnnClassifier
-from model.timer import Timer
+from data import TrainDataReader, ImageResizer, RleEncoder, ResultSaver, ShaperReporter, DataReader
+from cnn import CnnClassifier
+from timer import Timer
 from metrics import iou
 
 from sklearn.model_selection import train_test_split

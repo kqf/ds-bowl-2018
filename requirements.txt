@@ -3,3 +3,6 @@ scipy
 scikit-learn
 tensorflow
 keras
+pandas
+scikit-image
+seaborn
