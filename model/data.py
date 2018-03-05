@@ -29,22 +29,23 @@ class ImageResizer(BaseEstimator, TransformerMixin):
 
 class DataReader(object):
 
-    def __init__(self, datapath="input", stage="stage1"):
+    def __init__(self, datapath="input", stage="stage1", sample=None):
         super(DataReader, self).__init__()
         self.datapath = datapath
         self.stage = stage
+        self.sample = sample
+        self.folder_structure = {
+            "ImageId" : lambda path: path.split('/')[-3],
+            "ImageType" : lambda path: path.split('/')[-2],
+            "TrainingSplit" : lambda path: path.split('/')[-4].split('_')[1],
+            "Stage" : lambda path: path.split('/')[-4].split('_')[0]
+        }
 
     def _dataset(self):
         all_images = glob(os.path.join(self.datapath, '{0}_*'.format(self.stage), '*', '*', '*'))
         imlist = pd.DataFrame({'path': all_images})
-        img_id = lambda in_path: in_path.split('/')[-3]
-        img_type = lambda in_path: in_path.split('/')[-2]
-        img_group = lambda in_path: in_path.split('/')[-4].split('_')[1]
-        img_stage = lambda in_path: in_path.split('/')[-4].split('_')[0]
-        imlist['ImageId'] = imlist['path'].map(img_id)
-        imlist['ImageType'] = imlist['path'].map(img_type)
-        imlist['TrainingSplit'] = imlist['path'].map(img_group)
-        imlist['Stage'] = imlist['path'].map(img_stage)
+        for entry, function in self.folder_structure.items():
+            imlist[entry] = imlist['path'].map(function)
         return imlist 
 
     def read_and_stack(self, images):
@@ -59,7 +60,10 @@ class DataReader(object):
     def read(self, column="test"):
         dataset = self._dataset()
         output = dataset[dataset.TrainingSplit == column]
-        output = output.sample(2)
+
+        if self.sample:
+            output = output.sample(self.sample)
+
         output = output.rename(index=str, columns={"path": "images"})
         output.images = output.images.apply(lambda x: self.read_and_stack([x]))
         return output[["ImageId"]], self._process_images(output.images)
@@ -78,7 +82,9 @@ class TrainDataReader(DataReader):
                 on="ImageId"
         )
 
-        output = output.sample(10)
+        if self.sample:
+            output = output.sample(self.sample)
+
         output.images = output.images.apply(lambda x: self.read_and_stack([x]))
         output.masks = output.masks.apply(self.read_and_stack) 
         return self._process_images(output.images), self._process_images(output.masks)

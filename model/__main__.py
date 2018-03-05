@@ -16,7 +16,7 @@ def build_model():
 
 def main():
     with Timer('Prepare data'):
-        train_imges, train_masks = TrainDataReader().read()
+        train_imges, train_masks = TrainDataReader(sample=10).read()
         X_train, X_test, y_train, y_test = train_test_split(train_imges, train_masks, test_size=0.3, random_state=42)
 
     with Timer('Prepare data'):
@@ -37,7 +37,7 @@ def main():
 
 
     with Timer("Reading test set"):
-        test_ids, test_images = DataReader().read()
+        test_ids, test_images = DataReader(sample=10).read()
 
     with Timer('Predicting the values'):
         predicted = classifier.predict(test_images)
