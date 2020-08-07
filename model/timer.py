@@ -1,5 +1,6 @@
 import time
 
+
 class Timer(object):
     def __init__(self, msg):
         super(Timer, self).__init__()
