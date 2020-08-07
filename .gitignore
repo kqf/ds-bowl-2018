@@ -6,6 +6,7 @@ input/
 *.csv
 *.png
 *.npy
+*.zip
 
 
 # python
