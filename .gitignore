@@ -1,8 +1,13 @@
+# data
 ignore/
 input/
-*.pyc
-*.npy
 .ipynb_checkpoints/
 *.ipynb
 *.csv
 *.png
+*.npy
+
+
+# python
+.python-version
+*.pyc
