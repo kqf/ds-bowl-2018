@@ -6,3 +6,4 @@ keras
 pandas
 scikit-image
 seaborn
+click
