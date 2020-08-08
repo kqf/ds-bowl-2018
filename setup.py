@@ -6,7 +6,7 @@ setup(
     packages=find_packages(),
     entry_points={
         'console_scripts': [
-            'merge-masks=model.main:train',
+            'merge-masks=model.data:main',
         ],
     },
 )
