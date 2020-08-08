@@ -5,7 +5,7 @@ train: data/cells/*/mask.png
 	echo "Training"
 
 data/cells/*/mask.png: data/cells
-	python model/data.py --path data/cells
+	merge-masks --path data/cells
 
 data/cells: data
 	mkdir -p data/cells

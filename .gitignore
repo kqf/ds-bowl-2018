@@ -12,3 +12,4 @@ input/
 # python
 .python-version
 *.pyc
+*.egg*
