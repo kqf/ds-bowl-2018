@@ -28,7 +28,6 @@ class UNet(torch.nn.Module):
     def __init__(self, pretrained=False):
         super().__init__()
         encoder = models.vgg16_bn(pretrained=pretrained).features
-
         self.conv1 = encoder[:6]
         self.conv2 = encoder[6:13]
         self.conv3 = encoder[13:23]

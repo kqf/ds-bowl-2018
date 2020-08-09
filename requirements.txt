@@ -1,9 +1,9 @@
 numpy
 scipy
 scikit-learn
-tensorflow
+torch
+torchvision
 keras
 pandas
-scikit-image
-seaborn
 click
+pytest
