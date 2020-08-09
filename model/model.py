@@ -1,4 +1,5 @@
 import torch
+import skorch
 from torchvision import models
 
 
@@ -65,3 +66,23 @@ class UNet(torch.nn.Module):
         dec1 = self.dec1(torch.cat([dec2, conv1], 1))
 
         return self.final(dec1)
+
+
+def build_model():
+    model = skorch.NeuralNet(
+        UNet,
+        criterion__padding=16,
+        batch_size=32,
+        max_epochs=20,
+        optimizer__momentum=0.9,
+        iterator_train__shuffle=True,
+        iterator_train__num_workers=4,
+        iterator_valid__shuffle=False,
+        iterator_valid__num_workers=4,
+        callbacks=[
+            skorch.callbacks.Checkpoint(f_params='best-params.pt'),
+        ],
+        device='cuda',
+    )
+
+    return model
