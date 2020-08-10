@@ -8,4 +8,3 @@ class TestData(unittest.TestCase):
         manager = DataManager("input", "stage1")
         self.assertIsNotNone(manager.images())
         self.assertIsNotNone(manager.masks())
-
