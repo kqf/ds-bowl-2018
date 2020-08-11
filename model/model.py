@@ -71,7 +71,8 @@ class UNet(torch.nn.Module):
 def build_model():
     model = skorch.NeuralNet(
         UNet,
-        criterion__padding=16,
+        criterion=torch.nn.BCEWithLogitsLoss,
+        # criterion__padding=16,
         batch_size=32,
         max_epochs=20,
         optimizer__momentum=0.9,
@@ -82,7 +83,7 @@ def build_model():
         callbacks=[
             skorch.callbacks.Checkpoint(f_params='best-params.pt'),
         ],
-        device='cuda',
+        device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
     )
 
     return model
