@@ -68,11 +68,24 @@ class UNet(torch.nn.Module):
         return self.final(dec1)
 
 
+class BCEWithLogitsLossPadding(torch.nn.Module):
+    def __init__(self, padding=16):
+        super().__init__()
+        self.padding = padding
+
+    def forward(self, input, target):
+        x = input.squeeze_(dim=1)
+        x = x[:, self.padding:-self.padding, self.padding:-self.padding]
+        y = target.squeeze_(dim=1)
+        y = y[:, self.padding:-self.padding, self.padding:-self.padding]
+        return torch.nn.functional.binary_cross_entropy_with_logits(x, y)
+
+
 def build_model():
     model = skorch.NeuralNet(
         UNet,
-        criterion=torch.nn.BCEWithLogitsLoss,
-        # criterion__padding=16,
+        criterion=BCEWithLogitsLossPadding,
+        criterion__padding=16,
         batch_size=32,
         max_epochs=20,
         optimizer__momentum=0.9,
