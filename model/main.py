@@ -1,3 +1,4 @@
+import click
 from cnn import CnnClassifier
 from data import (DataReader, ResultSaver, RleEncoder,
                   ShaperReporter, TrainDataReader)
@@ -16,7 +17,14 @@ def build_model():
     return classifier
 
 
+@click.command()
 def main():
+    pass
+
+
+@main.command()
+@click.option("--path", type=click.Path(exists=True), default="data/cells")
+def train(path):
     with Timer('Prepare data'):
         train_imges, train_masks = TrainDataReader(sample=10).read()
         X_train, X_test, y_train, y_test = train_test_split(
