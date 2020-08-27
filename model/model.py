@@ -1,9 +1,6 @@
-import click
 import torch
 import skorch
 from torchvision import models
-
-from model.data import CellsDataset, PatchedDataset
 
 
 def make_decoder_block(in_channels, middle_channels, out_channels):

@@ -5,8 +5,8 @@ train: data/cells/merged.txt
 	nuclei train --path data/cells/
 
 
-dataset: data/cells/merged.txt
-	echo "Successfully loaded"
+data: data/cells/merged.txt
+	@echo "Successfully loaded"
 
 data/cells/merged.txt: data/cells
 	merge-masks --path data/cells

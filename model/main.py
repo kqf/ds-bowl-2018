@@ -25,7 +25,7 @@ def main():
 @click.option("--path", type=click.Path(exists=True), default="data/cells")
 def train(path):
     dirs = [p for p in Path(path).iterdir() if p.is_dir()]
-    dataset = PatchedDataset(CellsDataset(dirs))
+    dataset = PatchedDataset(CellsDataset(dirs[:10]))
 
     model = build_model()
     with timer("Train the model"):

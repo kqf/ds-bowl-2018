@@ -10,6 +10,14 @@ input/
 *.txt
 
 
+# data
+*.json
+
+
+# checkpoints
+*.pt
+
+
 # python
 .python-version
 *.pyc
