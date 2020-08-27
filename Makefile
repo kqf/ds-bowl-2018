@@ -2,7 +2,11 @@ competition = data-science-bowl-2018
 
 
 train: data/cells/merged.txt
-	nuclei --train $^
+	nuclei train --path data/cells/
+
+
+dataset: data/cells/merged.txt
+	echo "Successfully loaded"
 
 data/cells/merged.txt: data/cells
 	merge-masks --path data/cells
@@ -15,3 +19,6 @@ data/cells: data/stage1_train.zip
 data/stage1_train.zip:
 	kaggle competitions download -c $(competition) -p data
 	unzip -qq data/$(competition).zip -d data/
+
+
+.PHONY: dataset

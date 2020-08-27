@@ -103,13 +103,3 @@ def build_model():
     )
 
     return model
-
-
-@click.command()
-@click.option("--train", type=click.Path(exists=True))
-def main(train):
-    print(train)
-
-
-if __name__ == '__main__':
-    main()
