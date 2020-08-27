@@ -2,7 +2,7 @@ competition = data-science-bowl-2018
 
 
 train: data/cells/merged.txt
-	echo "Training"
+	nuclei --train $^
 
 data/cells/merged.txt: data/cells
 	merge-masks --path data/cells

@@ -1,6 +1,9 @@
+import click
 import torch
 import skorch
 from torchvision import models
+
+from model.data import CellsDataset, PatchedDataset
 
 
 def make_decoder_block(in_channels, middle_channels, out_channels):
@@ -100,3 +103,13 @@ def build_model():
     )
 
     return model
+
+
+@click.command()
+@click.option("--train", type=click.Path(exists=True))
+def main(train):
+    print(train)
+
+
+if __name__ == '__main__':
+    main()
