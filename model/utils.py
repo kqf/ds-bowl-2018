@@ -46,3 +46,18 @@ def plot_mask_cells(mask_cells, padding=16):
             padding=padding)
     fig.tight_layout()
     return fig, axes
+
+
+def plot_masks(mask_1, mask_2, mask_3):
+    fig, ((ax1, ax2, ax3)) = plt.subplots(1, 3, figsize=(12, 5))
+    for ax in [ax1, ax2, ax3]:
+        ax.grid(False)
+        ax.set_xticks([])
+        ax.set_yticks([])
+    ax1.set_title("Type 1")
+    ax1.imshow(mask_1, cmap='viridis')
+    ax2.set_title("Type 2")
+    ax2.imshow(mask_2, cmap='viridis')
+    ax3.set_title("Type 3")
+    ax3.imshow(mask_3, cmap='viridis')
+    return ax1, ax2, ax3
