@@ -81,13 +81,13 @@ class BCEWithLogitsLossPadding(torch.nn.Module):
         return torch.nn.functional.binary_cross_entropy_with_logits(x, y)
 
 
-def build_model():
+def build_model(max_epochs=2):
     model = skorch.NeuralNet(
         UNet,
         criterion=BCEWithLogitsLossPadding,
         criterion__padding=16,
         batch_size=32,
-        max_epochs=20,
+        max_epochs=max_epochs,
         optimizer__momentum=0.9,
         iterator_train__shuffle=True,
         iterator_train__num_workers=4,
@@ -95,6 +95,7 @@ def build_model():
         iterator_valid__num_workers=4,
         callbacks=[
             skorch.callbacks.Checkpoint(f_params='best-params.pt'),
+            skorch.callbacks.ProgressBar(),
         ],
         device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
     )
