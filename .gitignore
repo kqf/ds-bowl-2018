@@ -9,14 +9,11 @@ input/
 *.zip
 *.txt
 
-
 # data
 *.json
 
-
 # checkpoints
 *.pt
-
 
 # python
 .python-version

@@ -5,6 +5,7 @@ from pathlib import Path
 from model.data import PatchedDataset
 from model.data import CellsDataset
 from model.model import build_model
+from model.vis import plot_cells
 
 
 @contextmanager
@@ -25,11 +26,13 @@ def main():
 @click.option("--path", type=click.Path(exists=True), default="data/cells")
 def train(path):
     dirs = [p for p in Path(path).iterdir() if p.is_dir()]
-    dataset = PatchedDataset(CellsDataset(dirs[:10]))
+    dataset = CellsDataset(dirs[:25])
+    imgs, masks = zip(*dataset)
+    plot_cells(imgs[6], imgs[13], imgs[13])
 
-    model = build_model()
-    with timer("Train the model"):
-        model.fit(dataset)
+    # model = build_model()
+    # with timer("Train the model"):
+    #     model.fit(dataset)
 
 
 if __name__ == '__main__':
