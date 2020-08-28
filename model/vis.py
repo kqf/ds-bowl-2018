@@ -63,17 +63,13 @@ def plot_masks(mask_1, mask_2, mask_3):
     return ax1, ax2, ax3
 
 
-def plot_cells(cell_1, cell_2, cell_3):
-    """Plots three cells"""
-    fig, ((ax1, ax2, ax3)) = plt.subplots(1, 3, figsize=(12, 5))
-    for ax in [ax1, ax2, ax3]:
+def plot_cells(cells):
+    fig, (axes) = plt.subplots(1, len(cells), figsize=(12, 5))
+    for i, (image, ax) in enumerate(zip(cells, axes)):
         ax.grid(False)
         ax.set_xticks([])
         ax.set_yticks([])
-    ax1.set_title("Type 1")
-    ax1.imshow(cell_1)
-    ax2.set_title("Type 2")
-    ax2.imshow(cell_2)
-    ax3.set_title("Type 3")
-    ax3.imshow(cell_3)
-    return ax1, ax2, ax3
+        ax.set_title(f"Sample {i}")
+        ax.imshow(image)
+    plt.show()
+    return axes
