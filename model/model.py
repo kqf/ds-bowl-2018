@@ -84,7 +84,7 @@ class BCEWithLogitsLossPadding(torch.nn.Module):
 
 class SegmentationNet(skorch.NeuralNet):
     def predict_proba(self, X, y=None):
-        logits = super().predict_proba(X)
+        logits = super().predict_proba(X).squeeze(1)
         return 1 / (1 + np.exp(-logits))
 
 
