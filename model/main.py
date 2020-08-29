@@ -5,7 +5,7 @@ from pathlib import Path
 from model.data import PatchedDataset
 from model.data import CellsDataset
 from model.model import build_model
-from model.vis import plot_cells
+from model.vis import plot_cells, plot_mask_cells
 
 
 @contextmanager
@@ -33,10 +33,16 @@ def train(path):
     plot_cells(masks)
 
     patched = PatchedDataset(dataset)
+    imgs, masks = zip(*patched)
 
     model = build_model(max_epochs=2)
     with timer("Train the model"):
         model.fit(patched)
+
+    with timer("Predict the labels"):
+        preds = model.predict(patched)
+
+    plot_mask_cells(preds[:3])
 
 
 if __name__ == '__main__':
