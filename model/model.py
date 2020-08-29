@@ -1,5 +1,6 @@
 import torch
 import skorch
+import numpy as np
 from torchvision import models
 
 
@@ -81,8 +82,14 @@ class BCEWithLogitsLossPadding(torch.nn.Module):
         return torch.nn.functional.binary_cross_entropy_with_logits(x, y)
 
 
+class SegmentationNet(skorch.NeuralNet):
+    def predict_proba(self, X, y=None):
+        logits = super().predict_proba(X)
+        return 1 / (1 + np.exp(-logits))
+
+
 def build_model(max_epochs=2):
-    model = skorch.NeuralNet(
+    model = SegmentationNet(
         UNet,
         criterion=BCEWithLogitsLossPadding,
         criterion__padding=16,
