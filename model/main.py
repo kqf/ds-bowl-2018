@@ -27,14 +27,9 @@ def main():
 def train(path):
     dirs = [p for p in Path(path).iterdir() if p.is_dir()]
     dataset = CellsDataset(dirs[:5])
-    imgs, masks = zip(*dataset)
-
-    plot_cells(imgs)
-    plot_cells(masks)
+    plot_cells(*zip(*dataset))
 
     patched = PatchedDataset(dataset)
-    imgs, masks = zip(*patched)
-
     model = build_model(max_epochs=2)
     with timer("Train the model"):
         model.fit(patched)
@@ -42,7 +37,8 @@ def train(path):
     with timer("Predict the labels"):
         preds = model.predict(patched)
 
-    plot_cells(preds[:3])
+    imgs, masks = zip(*patched)
+    plot_cells(imgs, masks, preds)
 
 
 if __name__ == '__main__':
