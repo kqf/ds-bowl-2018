@@ -132,14 +132,16 @@ class GenericDataset(Dataset):
         mask_fn = sample_dir / 'mask.png'
 
         # Read an image with OpenCV
-        image, mask = cv2.imread(cell_fn), cv2.imread(mask_fn)
+        image = cv2.imread(str(cell_fn))
+        mask = cv2.imread(str(mask_fn), cv2.IMREAD_GRAYSCALE)
 
         # By default OpenCV uses BGR color space for color images,
         # so we need to convert the image to RGB color space.
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         if self.transform is not None:
-            augmented = self.transform(image=image)
+            augmented = self.transform(image=image, mask=mask)
             image = augmented['image']
+            mask = augmented["mask"]
         return image, mask
 
 

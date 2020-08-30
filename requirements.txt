@@ -10,3 +10,4 @@ pytest
 skorch
 matplotlib
 opencv-python
+albumentations
