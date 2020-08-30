@@ -9,3 +9,4 @@ click
 pytest
 skorch
 matplotlib
+opencv-python
