@@ -1,9 +1,9 @@
 import pytest
 import random
 from model.data import PatchedDataset, CellsDataset, GenericDataset
+from model.model import train_transform
 
 from pathlib import Path
-from albumentations.pytorch import ToTensorV2
 
 
 @pytest.fixture
@@ -25,7 +25,7 @@ def test_data(data):
 
 def test_generic(path="data/cells/"):
     folders = random.choices(list(Path(path).iterdir()), k=2)
-    data = GenericDataset(folders, transform=ToTensorV2())
+    data = GenericDataset(folders, transform=train_transform())
     X, y = next(iter((data)))
 
     x_channels, *x_shape = X.shape

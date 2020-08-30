@@ -1,7 +1,10 @@
 import torch
 import skorch
 import numpy as np
+import albumentations as alb
+
 from torchvision import models
+from albumentations.pytorch import ToTensorV2
 
 
 def make_decoder_block(in_channels, middle_channels, out_channels):
@@ -86,6 +89,19 @@ class SegmentationNet(skorch.NeuralNet):
     def predict_proba(self, X, y=None):
         logits = super().predict_proba(X).squeeze(1)
         return 1 / (1 + np.exp(-logits))
+
+
+def train_transform():
+    return alb.Compose([
+        alb.Resize(256, 256),
+        alb.RandomCrop(224, 224),
+        alb.HorizontalFlip(),
+        alb.Normalize(
+            mean=[0.485, 0.456, 0.406],
+            std=[0.229, 0.224, 0.225],
+        ),
+        ToTensorV2(),
+    ])
 
 
 def build_model(max_epochs=2):
