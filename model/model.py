@@ -93,7 +93,7 @@ class SegmentationNet(skorch.NeuralNet):
 
 def train_transform():
     return alb.Compose([
-        alb.Resize(256, 256),
+        alb.PadIfNeeded(256, 256),
         alb.RandomCrop(224, 224),
         alb.HorizontalFlip(),
         alb.VerticalFlip(),

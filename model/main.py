@@ -28,17 +28,19 @@ def main():
 @click.option("--path", type=click.Path(exists=True), default="data/cells")
 def train(path):
     dirs = [p for p in Path(path).iterdir() if p.is_dir()]
-    dataset = GenericDataset(dirs[:5], transform=train_transform())
+    dataset = CellsDataset(dirs[:5])
     plot_cells(*zip(*dataset))
 
+    # patched = PatchedDataset(dataset)
+    patched = GenericDataset(dirs[:5], transform=train_transform())
     model = build_model(max_epochs=2)
     with timer("Train the model"):
-        model.fit(dataset)
+        model.fit(patched)
 
     with timer("Predict the labels"):
-        preds = model.predict(dataset)
+        preds = model.predict(patched)
 
-    imgs, masks = zip(*dataset)
+    imgs, masks = zip(*patched)
     plot_cells(imgs, masks, preds)
 
 
