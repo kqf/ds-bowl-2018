@@ -96,6 +96,7 @@ def train_transform():
         alb.Resize(256, 256),
         alb.RandomCrop(224, 224),
         alb.HorizontalFlip(),
+        alb.VerticalFlip(),
         alb.Normalize(
             mean=[0.485, 0.456, 0.406],
             std=[0.229, 0.224, 0.225],
