@@ -142,7 +142,7 @@ class GenericDataset(Dataset):
             augmented = self.transform(image=image, mask=mask)
             image = augmented['image']
             mask = augmented["mask"]
-        return image, mask
+        return image, (mask == 255).float()
 
 
 def combine_masks(mask_root_dir):
