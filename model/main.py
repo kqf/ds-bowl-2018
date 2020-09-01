@@ -3,7 +3,7 @@ import click
 from contextlib import contextmanager
 from pathlib import Path
 from model.data import CellsDataset
-from model.model import build_model, train_transform
+from model.model import build_model, train_transform, test_transform
 from model.vis import plot_cells
 
 
@@ -32,6 +32,8 @@ def train(path):
     with timer("Train the model"):
         model.fit(dataset)
 
+    dataset = CellsDataset(dirs[:5], transform=test_transform())
+    plot_cells(*zip(*dataset))
     with timer("Predict the labels"):
         preds = model.predict(dataset)
 
