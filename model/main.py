@@ -32,12 +32,12 @@ def train(path):
     with timer("Train the model"):
         model.fit(dataset)
 
-    dataset = CellsDataset(dirs[:5], transform=test_transform())
-    plot_cells(*zip(*dataset))
+    test = CellsDataset(dirs[:5], transform=test_transform())
+    plot_cells(*zip(*test))
     with timer("Predict the labels"):
-        preds = model.predict(dataset)
+        preds = model.predict(test)
 
-    imgs, masks = zip(*dataset)
+    imgs, masks = zip(*test)
     plot_cells(imgs, masks, preds)
 
 

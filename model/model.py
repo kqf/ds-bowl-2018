@@ -91,12 +91,8 @@ class SegmentationNet(skorch.NeuralNet):
         return 1 / (1 + np.exp(-logits))
 
 
-def train_transform():
+def normalize_transform():
     return alb.Compose([
-        alb.PadIfNeeded(256, 256),
-        alb.RandomCrop(224, 224),
-        alb.HorizontalFlip(),
-        alb.VerticalFlip(),
         alb.PadIfNeeded(256, 256),
         alb.Normalize(
             mean=[0.485, 0.456, 0.406],
@@ -106,14 +102,20 @@ def train_transform():
     ])
 
 
+def train_transform():
+    return alb.Compose([
+        alb.PadIfNeeded(256, 256),
+        alb.RandomCrop(224, 224),
+        alb.HorizontalFlip(),
+        alb.VerticalFlip(),
+        normalize_transform(),
+    ])
+
+
 def test_transform():
     return alb.Compose([
         alb.Resize(256, 256),
-        alb.Normalize(
-            mean=[0.485, 0.456, 0.406],
-            std=[0.229, 0.224, 0.225],
-        ),
-        ToTensorV2(),
+        normalize_transform(),
     ])
 
 
