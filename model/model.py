@@ -114,7 +114,6 @@ def train_transform():
 
 def test_transform():
     return alb.Compose([
-        alb.Resize(256, 256),
         normalize_transform(),
     ])
 
