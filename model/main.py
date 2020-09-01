@@ -21,6 +21,16 @@ def main():
     pass
 
 
+def infer(model, dataset, title):
+    print(f"Infering for {title} set")
+    plot_cells(*zip(*dataset))
+    with timer("Predict the labels"):
+        preds = model.predict(dataset)
+
+    imgs, masks = zip(*dataset)
+    plot_cells(imgs, masks, preds)
+
+
 @main.command()
 @click.option("--path", type=click.Path(exists=True), default="data/cells")
 def train(path):
@@ -32,13 +42,10 @@ def train(path):
     with timer("Train the model"):
         model.fit(dataset)
 
-    test = CellsDataset(dirs[:5], transform=test_transform())
-    plot_cells(*zip(*test))
-    with timer("Predict the labels"):
-        preds = model.predict(test)
+    infer(model, dataset, "train")
 
-    imgs, masks = zip(*test)
-    plot_cells(imgs, masks, preds)
+    test = CellsDataset(dirs[:2], transform=test_transform())
+    infer(model, test, "test")
 
 
 if __name__ == '__main__':
