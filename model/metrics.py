@@ -7,6 +7,16 @@ def iou(predictions, labels, verbose=False):
     ]).mean()
 
 
+def precision_at(threshold, iou):
+    matches = iou > threshold
+    true_positives = np.sum(matches, axis=1) == 1   # Correct objects
+    false_positives = np.sum(matches, axis=0) == 0  # Missed objects
+    false_negatives = np.sum(matches, axis=1) == 0  # Extra objects
+    tp, fp, fn = np.sum(true_positives), np.sum(
+        false_positives), np.sum(false_negatives)
+    return tp, fp, fn
+
+
 def _iou_single(y_pred, labels, verbose):
     # Compute number of objects
     true_objects = len(np.unique(labels))
@@ -39,16 +49,6 @@ def _iou_single(y_pred, labels, verbose):
 
     # Compute the intersection over union
     iou = intersection / union
-
-    # Precision helper function
-    def precision_at(threshold, iou):
-        matches = iou > threshold
-        true_positives = np.sum(matches, axis=1) == 1   # Correct objects
-        false_positives = np.sum(matches, axis=0) == 0  # Missed objects
-        false_negatives = np.sum(matches, axis=1) == 0  # Extra objects
-        tp, fp, fn = np.sum(true_positives), np.sum(
-            false_positives), np.sum(false_negatives)
-        return tp, fp, fn
 
     # Loop over IoU thresholds
     prec = []
