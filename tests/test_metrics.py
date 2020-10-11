@@ -1,17 +1,14 @@
-import numpy as np
 import pytest
+import numpy as np
+
 from model.metrics import iou
 
 
-@pytest.fixture
-def true_labels(n=20):
-    return (np.random.randn(n, 256, 256) > 0.5).astype(int)
-
-
-@pytest.fixture
-def predicted(n=10):
-    return (np.random.randn(n, 256, 256) > 0.5).astype(int)
-
-
+@pytest.mark.parametrize("true_labels, predicted", [
+    (np.random.randn(2, 256, 256) > 0.5, np.random.randn(2, 256, 256) > 0.5),
+    (np.random.randn(3, 256, 256) > 0.5, np.random.randn(2, 256, 256) > 0.5),
+    (np.random.randn(2, 256, 256) > 0.5, np.random.randn(3, 256, 256) > 0.5),
+    (np.zeros((2, 256, 256)), np.random.randn(3, 256, 256) > 0.5),
+])
 def test_calculates_metrics(true_labels, predicted):
-    assert iou(true_labels, predicted) == 0.0
+    assert iou(true_labels.astype(int), predicted.astype(int)) == 0.0
