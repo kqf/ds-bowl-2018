@@ -3,11 +3,10 @@ scipy
 scikit-learn
 torch
 torchvision
-keras
 pandas
 click
-pytest
 skorch
 matplotlib
 opencv-python
 albumentations
+pytest
