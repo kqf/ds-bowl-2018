@@ -45,7 +45,7 @@ def train(path):
     infer(model, dataset, "train")
 
     # Infer for all types of images
-    model.set_param(batch_size=1)
+    model.set_params(batch_size=1)
     test = CellsDataset(dirs[:2], transform=test_transform())
     infer(model, test, "test")
 
