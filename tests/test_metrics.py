@@ -24,3 +24,12 @@ def test_calculates_metrics(true_labels, predicted):
 def test_calculates_approx_metrics(true_labels, predicted):
     y_true = true_labels.astype(int)
     assert np.isnan(iou_approx(y_true, predicted))
+
+
+@pytest.mark.skip("TODO: fix me")
+@pytest.mark.parametrize("true_labels, predicted", [
+    (np.ones((3, 25, 25)), np.ones((3, 25, 25))),
+])
+def test_calculates_maximum_approx_metrics(true_labels, predicted):
+    y_true = true_labels.astype(int)
+    assert iou_approx(y_true, predicted) == 25
