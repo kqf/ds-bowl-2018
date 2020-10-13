@@ -1,6 +1,16 @@
 import numpy as np
 
 
+def iou_approx(true_masks, probas, padding=16):
+    true_masks = true_masks[:, padding:-padding, padding:-padding]
+    probas = probas[:, padding:-padding, padding:-padding]
+    preds = 1 / (1 + np.exp(-probas))
+
+    approx_intersect = np.sum(np.minimum(preds, true_masks), axis=(1, 2))
+    approx_union = np.sum(np.maximum(preds, true_masks), axis=(1, 2))
+    return np.mean(approx_intersect / approx_union)
+
+
 def iou(predictions, labels, verbose=False):
     return np.array([
         _iou_single(p, l, verbose) for p, l in zip(predictions, labels)
