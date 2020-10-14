@@ -25,11 +25,18 @@ def test_calculates_approx_metrics(true_labels, predicted):
     assert iou_approx(y_true, predicted, padding=1) > 0.0
 
 
-@pytest.mark.skip("TODO: fix me")
 @pytest.mark.parametrize("true_labels, predicted", [
     (np.zeros((1, 25, 25)), np.ones((1, 25, 25))),
     (np.zeros((3, 25, 25)), np.random.randn(3, 25, 25)),
 ])
+def test_calculates_minimum_approx_metrics(true_labels, predicted):
+    y_true = true_labels.astype(int)
+    assert iou_approx(y_true, predicted) == 0.
+
+
+@pytest.mark.parametrize("true_labels, predicted", [
+    (np.eye(25, 25), np.eye(25, 25)),
+])
 def test_calculates_maximum_approx_metrics(true_labels, predicted):
     y_true = true_labels.astype(int)
-    assert iou_approx(y_true, predicted) == 25
+    assert iou_approx(y_true[None, :, :], predicted[None, :, :]) == 1.
