@@ -7,6 +7,9 @@ from torchvision import models
 from albumentations.pytorch import ToTensorV2
 
 
+from model.metrics import iou_approx
+
+
 def make_decoder_block(in_channels, middle_channels, out_channels):
     block = torch.nn.Sequential(
         torch.nn.Conv2d(in_channels, middle_channels, 3, padding=1),
@@ -87,7 +90,7 @@ class BCEWithLogitsLossPadding(torch.nn.Module):
 
 class SegmentationNet(skorch.NeuralNet):
     def predict_proba(self, X, y=None):
-        logits = super().predict_proba(X).squeeze(1)
+        logits = super().predict_proba(X)
         return 1 / (1 + np.exp(-logits))
 
 
@@ -118,6 +121,11 @@ def test_transform():
     ])
 
 
+def score(net, ds, y):
+    predicted_logit_masks = net.predict(ds)
+    return iou_approx(y, predicted_logit_masks)
+
+
 def build_model(max_epochs=2):
     model = SegmentationNet(
         UNet,
@@ -133,6 +141,9 @@ def build_model(max_epochs=2):
         callbacks=[
             skorch.callbacks.Checkpoint(f_params='best-params.pt'),
             skorch.callbacks.ProgressBar(),
+            skorch.callbacks.EpochScoring(
+                score, name='iou', lower_is_better=False)
+
         ],
         device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
     )
