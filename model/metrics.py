@@ -1,9 +1,10 @@
 import numpy as np
 
 
-def iou_approx(true_masks, probas, padding=16):
-    true_masks = true_masks[:, padding:-padding, padding:-padding]
-    probas = probas[:, padding:-padding, padding:-padding]
+def iou_approx(true_masks, probas, padding=0):
+    _, sx, sy = probas.shape
+    true_masks = true_masks[:, padding:sx - padding, padding:sy - padding]
+    probas = probas[:, padding:sx - padding, padding:sy - padding]
     preds = 1 / (1 + np.exp(-probas))
 
     approx_intersect = np.sum(np.minimum(preds, true_masks), axis=(1, 2))
